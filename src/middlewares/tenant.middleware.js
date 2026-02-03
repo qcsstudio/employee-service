@@ -17,8 +17,9 @@ module.exports = async (req, res, next) => {
     const subdomain = cleanHost.split(".")[0];
 
     const response = await axios.get(
-      `${process.env.AUTH_SERVICE_URL}/companies/resolve/${subdomain}`
-    );
+  `${process.env.AUTH_SERVICE_URL}/auth/companies/resolve/${subdomain}`
+);
+
 
     req.companyId = response.data.companyId;
     req.companySlug = subdomain;
