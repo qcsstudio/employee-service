@@ -16,14 +16,14 @@ const employeeSchema = new mongoose.Schema(
     locationBranch: String,
     joiningDate: Date,
 
-    employeeType: String,
+    employeeType: String, // FULL_TIME, PART_TIME, etc
     shift: String,
     probation: Boolean,
 
     status: {
       type: String,
       enum: ["ACTIVE", "PENDING_APPROVAL"],
-      default: "ACTIVE"
+      default: "PENDING_APPROVAL"
     },
 
     authUserId: { type: mongoose.Schema.Types.ObjectId }

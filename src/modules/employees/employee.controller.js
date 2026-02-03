@@ -7,82 +7,101 @@ const {
 } = require("../../utils/mailer");
 
 /**
- * ADMIN CREATES EMPLOYEE
+ * CREATE EMPLOYEE
  */
 exports.createEmployee = async (req, res) => {
-  const {
-    fullName,
-    workEmail,
-    phone,
-    employeeId,
-    department,
-    designation,
-    reportingManager,
-    locationBranch,
-    joiningDate,
-    employeeType,
-    shift,
-    probation,
-    createLogin,
-    sendInvite
-  } = req.body;
+  try {
+    const {
+      fullName,
+      workEmail,
+      phone,
+      employeeId,
+      department,
+      designation,
+      reportingManager,
+      locationBranch,
+      joiningDate,
+      employeeType,
+      shift,
+      probation,
+      createLogin,
+      sendInvite
+    } = req.body;
 
-  const employee = await Employee.create({
-    companyId: req.companyId,
-    fullName,
-    workEmail,
-    phone,
-    employeeId,
-    department,
-    designation,
-    reportingManager,
-    locationBranch,
-    joiningDate,
-    employeeType,
-    shift,
-    probation,
-    status: createLogin ? "ACTIVE" : "PENDING_APPROVAL"
-  });
-
-  /* CREATE LOGIN */
-  if (createLogin) {
-    const password = crypto.randomBytes(4).toString("hex");
-
-    // 🔥 call auth-service here (pseudo)
-    // const authUser = await authService.createUser(...)
-
-    // employee.authUserId = authUser.id;
-    await employee.save();
-
-    await sendEmployeeLoginMail({
-      to: workEmail,
-      companyName: req.companySlug,
-      password
-    });
-  }
-
-  /* SEND INVITE */
-  if (sendInvite) {
-    const token = crypto.randomBytes(32).toString("hex");
-    const otp = Math.floor(1000 + Math.random() * 9000).toString();
-
-    await Invite.create({
+    // Check if employee already exists
+    const existingEmployee = await Employee.findOne({
       companyId: req.companyId,
-      email: workEmail,
-      token,
-      otp,
-      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
+      workEmail
     });
 
-    const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
+    if (existingEmployee) {
+      return res.status(400).json({ message: "Employee already exists" });
+    }
 
-    await sendEmployeeInviteMail({
-      to: workEmail,
-      companyName: req.companySlug,
-      inviteUrl,
-      otp
+    // Determine employee status
+    const status = createLogin ? "ACTIVE" : "PENDING_APPROVAL";
+
+    // Create Employee
+    const employee = await Employee.create({
+      companyId: req.companyId,
+      fullName,
+      workEmail,
+      phone,
+      employeeId,
+      department,
+      designation,
+      reportingManager,
+      locationBranch,
+      joiningDate,
+      employeeType,
+      shift,
+      probation,
+      status
     });
+
+    // === CREATE LOGIN ===
+    if (createLogin) {
+      const password = crypto.randomBytes(4).toString("hex"); // 8 hex chars
+
+      // Here you would call your auth service to create user login
+      // Example pseudo: const authUser = await authService.createUser(workEmail, password);
+      // employee.authUserId = authUser.id;
+
+      await employee.save();
+
+      await sendEmployeeLoginMail({
+        to: workEmail,
+        companyName: req.companySlug,
+        password
+      });
+    }
+
+    // === SEND INVITE ===
+    if (sendInvite) {
+      const token = crypto.randomBytes(32).toString("hex");
+      const otp = Math.floor(1000 + Math.random() * 9000).toString();
+
+      await Invite.create({
+        companyId: req.companyId,
+        email: workEmail,
+        token,
+        otp,
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours expiry
+      });
+
+      const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
+
+      await sendEmployeeInviteMail({
+        to: workEmail,
+        companyName: req.companySlug,
+        inviteUrl,
+        otp
+      });
+    }
+
+    res.json({ message: "Employee created successfully", employee });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Server error", error: err.message });
   }
-
-  res.json({ message: "Employee created successfully" });
 };
