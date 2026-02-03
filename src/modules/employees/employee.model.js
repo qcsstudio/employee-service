@@ -2,30 +2,31 @@ const mongoose = require("mongoose");
 
 const employeeSchema = new mongoose.Schema(
   {
-    companyId: {
-      type: mongoose.Schema.Types.ObjectId,
-      required: true,
-      index: true
-    },
+    companyId: { type: mongoose.Schema.Types.ObjectId, required: true },
 
     fullName: String,
-    workEmail: String,
+    workEmail: { type: String, required: true },
     phone: String,
-    employeeCode: String,
+    employeeId: String,
 
     department: String,
-    designation: String,
+    designation: String, // EMPLOYEE | HR | TL | MANAGER
     reportingManager: String,
-    location: String,
 
+    locationBranch: String,
     joiningDate: Date,
-    employeeType: {
+
+    employeeType: String,
+    shift: String,
+    probation: Boolean,
+
+    status: {
       type: String,
-      enum: ["FULL_TIME", "PART_TIME", "CONTRACT"]
+      enum: ["ACTIVE", "PENDING_APPROVAL"],
+      default: "ACTIVE"
     },
 
-    shift: String,
-    probationEndDate: Date
+    authUserId: { type: mongoose.Schema.Types.ObjectId }
   },
   { timestamps: true }
 );

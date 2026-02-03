@@ -1,35 +1,88 @@
-const service = require("./employee.service");
+const crypto = require("crypto");
+const Employee = require("../employees/employee.model");
+const Invite = require("../employee-invites/invite.model");
+const {
+  sendEmployeeInviteMail,
+  sendEmployeeLoginMail
+} = require("../../utils/mailer");
 
+/**
+ * ADMIN CREATES EMPLOYEE
+ */
 exports.createEmployee = async (req, res) => {
-  try {
-    const employee = await service.createEmployee(
-      req.companyId,
-      req.body
-    );
+  const {
+    fullName,
+    workEmail,
+    phone,
+    employeeId,
+    department,
+    designation,
+    reportingManager,
+    locationBranch,
+    joiningDate,
+    employeeType,
+    shift,
+    probation,
+    createLogin,
+    sendInvite
+  } = req.body;
 
-    res.status(201).json({
-      message: "employee created",
-      employeeId: employee._id
+  const employee = await Employee.create({
+    companyId: req.companyId,
+    fullName,
+    workEmail,
+    phone,
+    employeeId,
+    department,
+    designation,
+    reportingManager,
+    locationBranch,
+    joiningDate,
+    employeeType,
+    shift,
+    probation,
+    status: createLogin ? "ACTIVE" : "PENDING_APPROVAL"
+  });
+
+  /* CREATE LOGIN */
+  if (createLogin) {
+    const password = crypto.randomBytes(4).toString("hex");
+
+    // 🔥 call auth-service here (pseudo)
+    // const authUser = await authService.createUser(...)
+
+    // employee.authUserId = authUser.id;
+    await employee.save();
+
+    await sendEmployeeLoginMail({
+      to: workEmail,
+      companyName: req.companySlug,
+      password
     });
-  } catch (err) {
-    res.status(400).json({ message: err.message });
   }
-};
 
+  /* SEND INVITE */
+  if (sendInvite) {
+    const token = crypto.randomBytes(32).toString("hex");
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-exports.employeeDashboard = async (req, res) => {
-  try {
-    const data = await service.employeeDashboard(
-      req.companyId,
-      req.query
-    );
-
-    res.json({
-      message: "employee dashboard data",
-      data
+    await Invite.create({
+      companyId: req.companyId,
+      email: workEmail,
+      token,
+      otp,
+      expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: err.message });
+
+    const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
+
+    await sendEmployeeInviteMail({
+      to: workEmail,
+      companyName: req.companySlug,
+      inviteUrl,
+      otp
+    });
   }
+
+  res.json({ message: "Employee created successfully" });
 };
