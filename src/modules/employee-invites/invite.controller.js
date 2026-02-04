@@ -49,17 +49,17 @@ exports.sendEmployeeInvite = async (req, res) => {
 
 
 exports.verifyInvite = async (req, res) => {
-  const { token, otp } = req.body;
+  const { email, otp } = req.body;
 
   const invite = await Invite.findOne({
-    token,
+    email,
     otp,
     used: false,
     expiresAt: { $gt: new Date() }
   });
 
   if (!invite) {
-    return res.status(400).json({ message: "Invalid or expired invite" });
+    return res.status(400).json({ message: "Invalid or expired OTP" });
   }
 
   res.json({
@@ -69,6 +69,7 @@ exports.verifyInvite = async (req, res) => {
     companySlug: invite.companySlug
   });
 };
+
 
 
 exports.completeEmployeeProfile = async (req, res) => {

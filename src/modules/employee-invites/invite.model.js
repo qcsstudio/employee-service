@@ -3,7 +3,11 @@ const mongoose = require("mongoose");
 const inviteSchema = new mongoose.Schema(
   {
     companyId: mongoose.Schema.Types.ObjectId,
+    companySlug: String,  
+
     email: String,
+    role: String,
+
     token: String,
     otp: String,
     expiresAt: Date,
@@ -11,5 +15,6 @@ const inviteSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
 
 module.exports = mongoose.model("EmployeeInvite", inviteSchema);
