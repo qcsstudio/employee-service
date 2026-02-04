@@ -34,7 +34,10 @@ exports.sendEmployeeInvite = async (req, res) => {
     otp,
     expiresAt: new Date(linkExpiry)
   });
-
+console.log("📩 EMPLOYEE INVITE SENT");
+  console.log("➡ Email:", email);
+  console.log("➡ OTP:", otp);
+  console.log("➡ Token:", token);
   const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee`;
 
   await sendEmployeeInviteMail({
