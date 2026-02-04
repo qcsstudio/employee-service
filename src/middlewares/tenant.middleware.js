@@ -1,11 +1,11 @@
-const Company = require("../companies/company.model"); // or shared model
-
-module.exports = async (req, res, next) => {
+module.exports = (req, res, next) => {
   try {
+    // JWT already verified by auth middleware
     if (!req.user || !req.user.companyId) {
       return res.status(401).json({ message: "Invalid token" });
     }
 
+    // Tenant header is mandatory for company routes
     const tenantHost = req.headers["x-tenant"];
     if (!tenantHost) {
       return res.status(400).json({ message: "x-tenant header required" });
@@ -19,6 +19,6 @@ module.exports = async (req, res, next) => {
 
     next();
   } catch (err) {
-    next(err);
+    return res.status(400).json({ message: "Invalid tenant header" });
   }
 };
