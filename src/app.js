@@ -3,83 +3,22 @@ const cors = require("cors");
 
 const app = express();
 
-/* ===================== EXACT ALLOWED ORIGINS ===================== */
-const allowedExactOrigins = [
-  "http://localhost:5173",
-  "http://localhost:5174",
-  "https://qcshrms.vercel.app",
-  "https://qcsssss.qcsstudios.com"
-];
+/* CORS */
+app.use(cors({
+  origin: true,            // reflect request origin
+  credentials: true,
+  allowedHeaders: ["Content-Type", "Authorization", "x-tenant"],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
+}));
 
-/* ===================== ALLOWED SUBDOMAIN PATTERN ===================== */
-const allowedDomainRegex = /\.qcsstudios\.com$/;
-
-/* ===================== CORS ===================== */
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      if (!origin) return callback(null, true); // Postman / curl
-
-      if (allowedExactOrigins.includes(origin)) {
-        return callback(null, true);
-      }
-
-      try {
-        const hostname = new URL(origin).hostname;
-        if (allowedDomainRegex.test(hostname)) {
-          return callback(null, true);
-        }
-      } catch (err) {
-        console.log("❌ Invalid origin:", origin);
-      }
-
-      console.log("❌ CORS blocked:", origin);
-      return callback(new Error("CORS not allowed"));
-    },
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-    allowedHeaders: [
-      "Content-Type",
-      "Authorization",
-      "x-tenant"
-    ]
-  })
-);
-
-// 🔥 VERY IMPORTANT (preflight)
-app.options("*", cors());
-
-/* ===================== BODY PARSERS ===================== */
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
 
-/* ===================== DEBUG ===================== */
-app.use((req, res, next) => {
-  console.log(req.method, req.originalUrl);
-  next();
-});
-
-/* ===================== ROUTES ===================== */
+/* ROUTES */
 app.use("/employees", require("./modules/employees/employee.routes"));
 app.use("/employee-invites", require("./modules/employee-invites/invite.routes"));
 
-/* ===================== HEALTH ===================== */
 app.get("/", (req, res) => {
   res.json({ status: "Employee Service running 🚀" });
-});
-
-/* ===================== 404 ===================== */
-app.use((req, res) => {
-  res.status(404).json({ error: "Route not found" });
-});
-
-/* ===================== ERROR ===================== */
-app.use((err, req, res, next) => {
-  if (err.message === "CORS not allowed") {
-    return res.status(403).json({ error: "CORS blocked" });
-  }
-  console.error(err);
-  res.status(500).json({ error: "Server error" });
 });
 
 module.exports = app;
