@@ -19,7 +19,11 @@ const employeeSchema = new mongoose.Schema(
     employeeType: String, // FULL_TIME, PART_TIME, etc
     shift: String,
     probation: Boolean,
-
+systemRole: {
+  type: String,
+  enum: ["EMPLOYEE", "HR", "TL"],
+  default: "EMPLOYEE"
+},
     status: {
       type: String,
       enum: ["ACTIVE", "PENDING_APPROVAL"],

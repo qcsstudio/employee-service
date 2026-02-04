@@ -17,19 +17,25 @@ function getTransporter() {
   return transporter;
 }
 
-/* Invite Email */
-exports.sendEmployeeInviteMail = async ({ to, companyName, inviteUrl, otp }) => {
+exports.sendEmployeeInviteMail = async ({
+  to,
+  companyName,
+  inviteUrl,
+  otp,
+  inviteMessage
+}) => {
   await getTransporter().sendMail({
     from: `"${companyName}" <no-reply@xyz.io>`,
     to,
     subject: `Employee Invitation`,
     html: `
-      <p>You are invited to join <b>${companyName}</b></p>
+      <p>${inviteMessage || `You are invited to join <b>${companyName}</b>`}</p>
       <p><a href="${inviteUrl}">Complete Registration</a></p>
       <p>OTP: <b>${otp}</b></p>
     `
   });
 };
+
 
 /* Login Email */
 exports.sendEmployeeLoginMail = async ({ to, companyName, password }) => {

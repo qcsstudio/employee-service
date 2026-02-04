@@ -11,22 +11,27 @@ const {
  */
 exports.createEmployee = async (req, res) => {
   try {
-    const {
-      fullName,
-      workEmail,
-      phone,
-      employeeId,
-      department,
-      designation,
-      reportingManager,
-      locationBranch,
-      joiningDate,
-      employeeType,
-      shift,
-      probation,
-      createLogin,
-      sendInvite
-    } = req.body;
+   const {
+  fullName,
+  workEmail,
+  phone,
+  employeeId,
+  department,
+  designation,
+  reportingManager,
+  locationBranch,
+  joiningDate,
+  employeeType,
+  shift,
+  probation,
+  createLogin,
+  sendInvite,
+
+  systemRole,
+  method = "email",
+  inviteMessage
+} = req.body;
+
 
     // Check if employee already exists
     const existingEmployee = await Employee.findOne({
@@ -43,21 +48,23 @@ exports.createEmployee = async (req, res) => {
 
     // Create Employee
     const employee = await Employee.create({
-      companyId: req.companyId,
-      fullName,
-      workEmail,
-      phone,
-      employeeId,
-      department,
-      designation,
-      reportingManager,
-      locationBranch,
-      joiningDate,
-      employeeType,
-      shift,
-      probation,
-      status
-    });
+  companyId: req.companyId,
+  fullName,
+  workEmail,
+  phone,
+  employeeId,
+  department,
+  designation,
+  reportingManager,
+  locationBranch,
+  joiningDate,
+  employeeType,
+  shift,
+  probation,
+  status,
+  systemRole
+});
+
 
     // === CREATE LOGIN ===
     if (createLogin) {
@@ -81,22 +88,28 @@ exports.createEmployee = async (req, res) => {
       const token = crypto.randomBytes(32).toString("hex");
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-      await Invite.create({
-        companyId: req.companyId,
-        email: workEmail,
-        token,
-        otp,
-        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // 48 hours expiry
-      });
+    await Invite.create({
+  companyId: req.companyId,
+  email: workEmail,
+  token,
+  otp,
+  systemRole,
+  method,
+  inviteMessage,
+  expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
+});
+
 
       const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
 
-      await sendEmployeeInviteMail({
-        to: workEmail,
-        companyName: req.companySlug,
-        inviteUrl,
-        otp
-      });
+     await sendEmployeeInviteMail({
+  to: workEmail,
+  companyName: req.companySlug,
+  inviteUrl,
+  otp,
+  inviteMessage
+});
+
     }
 
     res.json({ message: "Employee created successfully", employee });
