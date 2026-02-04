@@ -11,27 +11,25 @@ const {
  */
 exports.createEmployee = async (req, res) => {
   try {
-   const {
-  fullName,
-  workEmail,
-  phone,
-  employeeId,
-  department,
-  designation,
-  reportingManager,
-  locationBranch,
-  joiningDate,
-  employeeType,
-  shift,
-  probation,
-  createLogin,
-  sendInvite,
-
-  systemRole,
-  method = "email",
-  inviteMessage
-} = req.body;
-
+    const {
+      fullName,
+      workEmail,
+      phone,
+      employeeId,
+      department,
+      designation,
+      reportingManager,
+      locationBranch,
+      joiningDate,
+      employeeType,
+      shift,
+      probation,
+      createLogin,
+      sendInvite,
+      systemRole,
+      method = "email",
+      inviteMessage
+    } = req.body;
 
     // Check if employee already exists
     const existingEmployee = await Employee.findOne({
@@ -40,7 +38,9 @@ exports.createEmployee = async (req, res) => {
     });
 
     if (existingEmployee) {
-      return res.status(400).json({ message: "Employee already exists" });
+      return res
+        .status(400)
+        .json({ message: "Employee already exists" });
     }
 
     // Determine employee status
@@ -48,30 +48,29 @@ exports.createEmployee = async (req, res) => {
 
     // Create Employee
     const employee = await Employee.create({
-  companyId: req.companyId,
-  fullName,
-  workEmail,
-  phone,
-  employeeId,
-  department,
-  designation,
-  reportingManager,
-  locationBranch,
-  joiningDate,
-  employeeType,
-  shift,
-  probation,
-  status,
-  systemRole
-});
-
+      companyId: req.companyId,
+      fullName,
+      workEmail,
+      phone,
+      employeeId,
+      department,
+      designation,
+      reportingManager,
+      locationBranch,
+      joiningDate,
+      employeeType,
+      shift,
+      probation,
+      status,
+      systemRole
+    });
 
     // === CREATE LOGIN ===
     if (createLogin) {
       const password = crypto.randomBytes(4).toString("hex"); // 8 hex chars
 
-      // Here you would call your auth service to create user login
-      // Example pseudo: const authUser = await authService.createUser(workEmail, password);
+      // Example: call your auth service to create login (pseudo code)
+      // const authUser = await authService.createUser(workEmail, password);
       // employee.authUserId = authUser.id;
 
       await employee.save();
@@ -88,33 +87,39 @@ exports.createEmployee = async (req, res) => {
       const token = crypto.randomBytes(32).toString("hex");
       const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
-    await Invite.create({
-  companyId: req.companyId,
-  email: workEmail,
-  token,
-  otp,
-  systemRole,
-  method,
-  inviteMessage,
-  expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
-});
-
+      await Invite.create({
+        companyId: req.companyId,
+        email: workEmail,
+        token,
+        otp,
+        systemRole,
+        method,
+        inviteMessage,
+        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000)
+      });
 
       const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
 
-     await sendEmployeeInviteMail({
-  to: workEmail,
-  companyName: req.companySlug,
-  inviteUrl,
-  otp,
-  inviteMessage
-});
-
+      await sendEmployeeInviteMail({
+        to: workEmail,
+        companyName: req.companySlug,
+        inviteUrl,
+        otp,
+        inviteMessage
+      });
     }
 
-    res.json({ message: "Employee created successfully", employee });
+    // ✅ Return success 200
+    res.status(200).json({
+      message: "Employee created successfully",
+      employee
+    });
+
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: "Server error", error: err.message });
+    console.error("Error creating employee:", err);
+    res.status(500).json({
+      message: "Server error",
+      error: err.message
+    });
   }
 };
