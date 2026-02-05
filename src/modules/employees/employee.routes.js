@@ -5,6 +5,7 @@ const tenant = require("../../middlewares/tenant.middleware");
 const employeeController = require("./employee.controller");
 const profileController = require("./employee.profile.controller");
 const approvalController = require("./ employee.approval.controller");
+const inviteTenant = require("../../middlewares/inviteTenant.middleware");
 
 /**
  * ===============================
@@ -18,7 +19,7 @@ router.post("/", auth, tenant, employeeController.createEmployee);
  * EMPLOYEE – SELF PROFILE (INVITE FLOW)
  * ===============================
  */
-router.put("/profile/personal", tenant, profileController.updatePersonal);
+router.put("/profile/personal", inviteTenant, profileController.updatePersonal);
 router.put("/profile/education", auth, tenant, profileController.updateEducation);
 router.put("/profile/documents", auth, tenant, profileController.updateDocuments);
 router.put("/profile/past-experience", auth, tenant, profileController.updatePastExperience);
