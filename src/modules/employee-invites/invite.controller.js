@@ -5,10 +5,10 @@ const { sendEmployeeInviteMail } = require("../../utils/mailer");
 
 
 exports.sendEmployeeInvite = async (req, res) => {
-  const { email, role, linkExpiry } = req.body;
+  const { email, fullName } = req.body;
 
-  if (!email || !linkExpiry) {
-    return res.status(400).json({ message: "email & expiry required" });
+  if (!email || !fullName) {
+    return res.status(400).json({ message: "email & fullName required" });
   }
 
   const existingInvite = await Invite.findOne({
@@ -25,36 +25,42 @@ exports.sendEmployeeInvite = async (req, res) => {
   const token = crypto.randomBytes(32).toString("hex");
   const otp = Math.floor(1000 + Math.random() * 9000).toString();
 
+  // ⏱ auto expiry (48 hours)
+  const expiresAt = new Date(Date.now() + 48 * 60 * 60 * 1000);
+
   await Invite.create({
     companyId: req.companyId,
     companySlug: req.companySlug,
     email,
-    role,
+    fullName,
+    role: "EMPLOYEE",
     token,
     otp,
-    expiresAt: new Date(linkExpiry)
+    expiresAt
   });
-console.log("📩 EMPLOYEE INVITE SENT");
-  console.log("➡ Email:", email);
-  console.log("➡ OTP:", otp);
-  console.log("➡ Token:", token);
+
   const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee`;
 
   await sendEmployeeInviteMail({
     to: email,
     companyName: req.companySlug,
     inviteUrl,
-    otp
+    otp,
+    fullName
   });
 
   res.json({ message: "Employee invite sent" });
 };
 
+
 exports.verifyInvite = async (req, res) => {
-  const { email, otp } = req.body;
+  const { otp } = req.body;
+
+  if (!otp) {
+    return res.status(400).json({ message: "OTP required" });
+  }
 
   const invite = await Invite.findOne({
-    email,
     otp,
     used: false,
     expiresAt: { $gt: new Date() }
@@ -66,15 +72,26 @@ exports.verifyInvite = async (req, res) => {
 
   res.json({
     inviteId: invite._id,
+    email: invite.email,
+    fullName: invite.fullName,
     companyId: invite.companyId,
     companySlug: invite.companySlug
   });
 };
 
-
-
 exports.completeEmployeeProfile = async (req, res) => {
-  const { inviteId, firstName, lastName, dob } = req.body;
+  const {
+    inviteId,
+    firstName,
+    lastName,
+    dob,
+    email,
+    phone
+  } = req.body;
+
+  if (!inviteId || !firstName || !lastName || !email) {
+    return res.status(400).json({ message: "Missing required fields" });
+  }
 
   const invite = await Invite.findById(inviteId);
   if (!invite || invite.used) {
@@ -83,7 +100,8 @@ exports.completeEmployeeProfile = async (req, res) => {
 
   const employee = await Employee.create({
     companyId: invite.companyId,
-    workEmail: invite.email,
+    workEmail: email,          // ✅ from payload
+    phone,
     firstName,
     lastName,
     fullName: `${firstName} ${lastName}`,
@@ -94,12 +112,12 @@ exports.completeEmployeeProfile = async (req, res) => {
   invite.used = true;
   await invite.save();
 
-  // 🔔 notify admin (email / dashboard)
   console.log("🟡 Approval required for:", employee._id);
 
   res.json({
-    message: "Basic info saved. Approval pending.",
+    message: "Profile submitted. Approval pending.",
     employeeId: employee._id,
     status: employee.status
   });
 };
+
