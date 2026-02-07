@@ -39,15 +39,16 @@ exports.sendEmployeeInvite = async (req, res) => {
     expiresAt
   });
 
-  const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee`;
+const inviteUrl = `https://qcsstudios.com/Addingyourself?token=${token}&email=${email}`;
 
   await sendEmployeeInviteMail({
-    to: email,
-    companyName: req.companySlug,
-    inviteUrl,
-    otp,
-    fullName
-  });
+  to: email,
+  companyName: req.companySlug,
+  inviteUrl,
+  otp,
+  inviteMessage: `Hi ${fullName}, you’ve been invited to join ${req.companySlug}`
+});
+
 
   res.json({ message: "Employee invite sent" });
 };

@@ -17,6 +17,7 @@ function getTransporter() {
   return transporter;
 }
 
+
 exports.sendEmployeeInviteMail = async ({
   to,
   companyName,
@@ -29,12 +30,19 @@ exports.sendEmployeeInviteMail = async ({
     to,
     subject: `Employee Invitation`,
     html: `
-      <p>${inviteMessage || `You are invited to join <b>${companyName}</b>`}</p>
-      <p><a href="${inviteUrl}">Complete Registration</a></p>
+      <p>${inviteMessage}</p>
+      <p>
+        <a href="${inviteUrl}" 
+           style="padding:10px 16px;background:#2563eb;color:#fff;border-radius:6px;text-decoration:none;">
+           Verify OTP & Complete Registration
+        </a>
+      </p>
       <p>OTP: <b>${otp}</b></p>
+      <p>This OTP is valid for 48 hours.</p>
     `
   });
 };
+
 
 
 /* Login Email */
