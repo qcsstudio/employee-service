@@ -52,7 +52,6 @@ exports.sendEmployeeInvite = async (req, res) => {
   res.json({ message: "Employee invite sent" });
 };
 
-
 exports.verifyInvite = async (req, res) => {
   const { otp } = req.body;
 
@@ -78,6 +77,7 @@ exports.verifyInvite = async (req, res) => {
     companySlug: invite.companySlug
   });
 };
+
 exports.completeEmployeeProfile = async (req, res) => {
   const {
     inviteId,
