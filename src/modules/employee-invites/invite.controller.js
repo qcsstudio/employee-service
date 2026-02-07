@@ -78,19 +78,17 @@ exports.verifyInvite = async (req, res) => {
     companySlug: invite.companySlug
   });
 };
-
 exports.completeEmployeeProfile = async (req, res) => {
   const {
     inviteId,
-    firstName,
-    lastName,
+    fullName,
     dob,
     email,
     phone
   } = req.body;
 
-  if (!inviteId || !firstName || !lastName || !email) {
-    return res.status(400).json({ message: "Missing required fields" });
+  if (!inviteId || !fullName || !email) {
+    return res.status(400).json({ message: "inviteId, fullName & email required" });
   }
 
   const invite = await Invite.findById(inviteId);
@@ -98,13 +96,17 @@ exports.completeEmployeeProfile = async (req, res) => {
     return res.status(400).json({ message: "Invalid invite" });
   }
 
+  // optional split (if needed later)
+  const [firstName, ...rest] = fullName.trim().split(" ");
+  const lastName = rest.join(" ");
+
   const employee = await Employee.create({
     companyId: invite.companyId,
-    workEmail: email,          // ✅ from payload
+    workEmail: email,
     phone,
-    firstName,
-    lastName,
-    fullName: `${firstName} ${lastName}`,
+    fullName,           // ✅ main source of truth
+    firstName,          // optional
+    lastName,           // optional
     dob,
     status: "PENDING_APPROVAL"
   });
@@ -120,4 +122,3 @@ exports.completeEmployeeProfile = async (req, res) => {
     status: employee.status
   });
 };
-
