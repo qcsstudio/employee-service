@@ -5,7 +5,7 @@ const { sendEmployeeInviteMail } = require("../../utils/mailer");
 
 
 exports.sendEmployeeInvite = async (req, res) => {
-  const { email, fullName } = req.body;
+const { email, fullName, slug } = req.body;
 
   if (!email || !fullName) {
     return res.status(400).json({ message: "email & fullName required" });
@@ -39,7 +39,18 @@ exports.sendEmployeeInvite = async (req, res) => {
     expiresAt
   });
 
-const inviteUrl = `https://qcsstudios.com/Addingyourself?token=${token}&email=${email}`;
+let inviteUrl = "https://qcsstudios.com/Addingyourself";
+
+const queryParams = new URLSearchParams({
+  token,
+  email
+});
+
+if (slug) {
+  queryParams.append("slug", slug);
+}
+
+inviteUrl = `${inviteUrl}?${queryParams.toString()}`;
 
   await sendEmployeeInviteMail({
   to: email,
