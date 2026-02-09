@@ -13,9 +13,9 @@ app.use(cors({
 
 app.use(express.json());
 
-/* ROUTES */
 app.use("/employees", require("./modules/employees/employee.routes"));
 app.use("/employee-invites", require("./modules/employee-invites/invite.routes"));
+app.use("/admin", require("./modules/admin/admin.routes"));
 
 app.get("/", (req, res) => {
   res.json({ status: "Employee Service running 🚀" });
