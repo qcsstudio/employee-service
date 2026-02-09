@@ -39,18 +39,19 @@ const { email, fullName, slug } = req.body;
     expiresAt
   });
 
-let inviteUrl = "https://qcsstudios.com/Addingyourself";
+const baseDomain = slug
+  ? `https://${slug}.qcsstudios.com`
+  : "https://qcsstudios.com";
 
 const queryParams = new URLSearchParams({
   token,
   email
 });
 
-if (slug) {
-  queryParams.append("slug", slug);
-}
+// optional: always pass company slug for FE
+queryParams.append("slug", req.companySlug);
 
-inviteUrl = `${inviteUrl}?${queryParams.toString()}`;
+const inviteUrl = `${baseDomain}/Addingyourself?${queryParams.toString()}`;
 
   await sendEmployeeInviteMail({
   to: email,
