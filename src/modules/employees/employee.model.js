@@ -49,6 +49,41 @@ const documentSchema = new mongoose.Schema({
   fileUrl: String
 }, { _id: false });
 
+const bioDataSchema = new mongoose.Schema(
+  {
+    gender: {
+      type: String,
+      enum: ["MALE", "FEMALE", "OTHER"],
+    },
+
+    bloodGroup: {
+      type: String,
+      enum: ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"],
+    },
+
+    genderPronoun: {
+      type: String, // he/him, she/her, they/them, custom
+    },
+
+    challenged: {
+      type: Boolean, // yes/no
+      default: false,
+    },
+
+    maritalStatus: {
+      type: String,
+      enum: ["SINGLE", "MARRIED", "DIVORCED", "WIDOWED"],
+    },
+
+    spouseOrPartnerName: {
+      type: String,
+      trim: true,
+    },
+  },
+  { _id: false }
+);
+
+
 const employeeSchema = new mongoose.Schema(
   {
     companyId: { type: mongoose.Schema.Types.ObjectId, required: true },
@@ -86,7 +121,7 @@ const employeeSchema = new mongoose.Schema(
       },
       addresses: [addressSchema],
       contacts: [contactSchema],
-      biodata: [String],
+      biodata: bioDataSchema,
       importantDates: {
         birthDate: Date,
         partnerBirthDate: Date,
