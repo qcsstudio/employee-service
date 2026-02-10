@@ -25,7 +25,6 @@ router.put("/:id/past-experience", employeeController.addPastExperience);
 */
 router.post("/", auth, tenant, employeeController.createEmployee);
 
-
 /**
  * ===============================
  * ADMIN – APPROVE EMPLOYEE
