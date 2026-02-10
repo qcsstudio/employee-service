@@ -80,3 +80,56 @@ exports.employeeDashboard = async (companyId, filters) => {
   };
 };
 
+// PERSONAL UPDATE
+exports.updatePersonal = async (employeeId, data) => {
+  return await Employee.findByIdAndUpdate(
+    employeeId,
+    { $set: { personal: data } },
+    { new: true }
+  );
+};
+
+// WORK PROFILE UPDATE
+exports.updateWorkProfile = async (employeeId, data) => {
+  return await Employee.findByIdAndUpdate(
+    employeeId,
+    { $set: { workProfile: data } },
+    { new: true }
+  );
+};
+
+// ADD EDUCATION
+exports.addEducation = async (employeeId, data) => {
+  return await Employee.findByIdAndUpdate(
+    employeeId,
+    { $push: { education: data } },
+    { new: true }
+  );
+};
+
+// ADD DOCUMENT (Dynamic by Type)
+exports.addOrUpdateDocument = async (employeeId, data) => {
+  const employee = await Employee.findById(employeeId);
+
+  const existingIndex = employee.documents.findIndex(
+    d => d.type === data.type
+  );
+
+  if (existingIndex > -1) {
+    employee.documents[existingIndex] = data;
+  } else {
+    employee.documents.push(data);
+  }
+
+  await employee.save();
+  return employee;
+};
+
+// ADD EXPERIENCE
+exports.addPastExperience = async (employeeId, data) => {
+  return await Employee.findByIdAndUpdate(
+    employeeId,
+    { $push: { pastExperience: data } },
+    { new: true }
+  );
+};

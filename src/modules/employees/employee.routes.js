@@ -1,4 +1,4 @@
-const router = require("express").Router();
+       const router = require("express").Router();
 const auth = require("../../middlewares/auth.middleware");
 const tenant = require("../../middlewares/tenant.middleware");
 
@@ -9,20 +9,22 @@ const inviteTenant = require("../../middlewares/inviteTenant.middleware");
 
 /**
  * ===============================
- * ADMIN – CREATE EMPLOYEE
- * ===============================
- */
-router.post("/", auth, tenant, employeeController.createEmployee);
-
-/**
- * ===============================
  * EMPLOYEE – SELF PROFILE (INVITE FLOW)
  * ===============================
  */
-router.put("/profile/personal", inviteTenant, profileController.updatePersonal);
-router.put("/profile/education", auth, tenant, profileController.updateEducation);
-router.put("/profile/documents", auth, tenant, profileController.updateDocuments);
-router.put("/profile/past-experience", auth, tenant, profileController.updatePastExperience);
+router.put("/:id/personal", employeeController.updatePersonal);
+router.put("/:id/work-profile", employeeController.updateWorkProfile);
+router.put("/:id/education", employeeController.addEducation);
+router.put("/:id/document", employeeController.addOrUpdateDocument);
+router.put("/:id/past-experience", employeeController.addPastExperience);
+
+/**
+ * ===============================
+ * ADMIN – CREATE EMPLOYEE
+ * ===============================
+*/
+router.post("/", auth, tenant, employeeController.createEmployee);
+
 
 /**
  * ===============================

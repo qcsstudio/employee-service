@@ -5,6 +5,7 @@ const {
   sendEmployeeInviteMail,
   sendEmployeeLoginMail
 } = require("../../utils/mailer");
+const employeeService = require("./employee.service");
 
 /**
  * CREATE EMPLOYEE
@@ -131,4 +132,55 @@ exports.createEmployee = async (req, res) => {
       error: err.message
     });
   }
+};
+
+
+exports.updatePersonal = async (req, res) => {
+  const { id } = req.params;
+  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  const employee = await employeeService.updatePersonal(
+    id,
+    req.body
+  );
+  res.json(employee);
+};
+
+exports.updateWorkProfile = async (req, res) => {
+  const { id } = req.params;
+  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  const employee = await employeeService.updateWorkProfile(
+    id,
+    req.body
+  );
+  res.json(employee);
+};
+
+exports.addEducation = async (req, res) => {
+  const { id } = req.params;
+  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  const employee = await employeeService.addEducation(
+    id,
+    req.body
+  );
+  res.json(employee);
+};
+
+exports.addOrUpdateDocument = async (req, res) => {
+  const { id } = req.params;
+  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  const employee = await employeeService.addOrUpdateDocument(
+    id,
+    req.body
+  );
+  res.json(employee);
+};
+
+exports.addPastExperience = async (req, res) => {
+  const { id } = req.params;
+  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  const employee = await employeeService.addPastExperience(
+    id,
+    req.body
+  );
+  res.json(employee);
 };
