@@ -126,7 +126,7 @@ const employeeSchema = new mongoose.Schema(
     /* STATUS */
     status: {
       type: String,
-      enum: ["PENDING_APPROVAL", "ACTIVE"],
+      enum: ["PENDING_APPROVAL", "ACTIVE", "APPROVAL_REJECTED"],
       default: "PENDING_APPROVAL",
     },
 

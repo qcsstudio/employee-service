@@ -32,5 +32,19 @@ router.post("/", auth, tenant, employeeController.createEmployee);
  * ===============================
  */
 router.post("/approve/:id", auth, tenant, approvalController.approveEmployee);
+router.post(
+  "/reject/:id",
+  auth,
+  tenant,
+  approvalController.rejectEmployee
+);
+
+router.get(
+  "/pending",
+  auth,
+  tenant,
+  approvalController.getPendingEmployees
+);
+
 
 module.exports = router;
