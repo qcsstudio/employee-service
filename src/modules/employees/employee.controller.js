@@ -179,13 +179,23 @@ exports.addEducation = async (req, res) => {
 
 exports.addOrUpdateDocument = async (req, res) => {
   const { id } = req.params;
-  if(!id) return res.status(400).json({ message: "Employee ID is required" });
+  if (!id) return res.status(400).json({ message: "Employee ID is required" });
+
+  let payload = { ...req.body };
+
+  // If file uploaded, attach S3 URL
+  if (req.file) {
+    payload.fileUrl = req.file.location;
+  }
+
   const employee = await employeeService.addOrUpdateDocument(
     id,
-    req.body
+    payload
   );
+
   res.json(employee);
 };
+
 
 exports.addPastExperience = async (req, res) => {
   const { id } = req.params;
