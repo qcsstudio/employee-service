@@ -6,6 +6,7 @@ const {
   sendEmployeeLoginMail
 } = require("../../utils/mailer");
 const employeeService = require("./employee.service");
+   const axios = require("axios");
 
 /**
  * CREATE EMPLOYEE
@@ -76,21 +77,32 @@ exports.createEmployee = async (req, res) => {
     }
 
     // === CREATE LOGIN ===
-    if (createLogin) {
-      const password = crypto.randomBytes(4).toString("hex"); // 8 hex chars
 
-      // TODO: call your auth service to create login
-      // const authUser = await authService.createUser(workEmail, password);
-      // employee.authUserId = authUser.id;
+if (createLogin) {
+  const password = crypto.randomBytes(4).toString("hex");
 
-      await employee.save();
-
-      await sendEmployeeLoginMail({
-        to: workEmail,
-        companyName: req.companySlug,
-        password
-      });
+  const response = await axios.post(
+    "http://localhost:4000/users/internal-create",
+    {
+      name: fullName,
+      email: workEmail,
+      password,
+      role: systemRole || "EMPLOYEE",   // ✅ FIXED
+      companyId: req.companyId
     }
+  );
+
+  employee.authUserId = response.data.userId;
+  await employee.save();
+
+  await sendEmployeeLoginMail({
+    to: workEmail,
+    companyName: req.companySlug,
+    password
+  });
+}
+
+
 
     // === SEND INVITE ===
     if (sendInvite) {
