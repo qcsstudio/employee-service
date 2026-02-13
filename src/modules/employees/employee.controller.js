@@ -96,10 +96,11 @@ if (createLogin) {
   await employee.save();
 
   await sendEmployeeLoginMail({
-    to: workEmail,
-    companyName: req.companySlug,
-    password
-  });
+  to: workEmail,
+  companySlug: req.companySlug,
+  password
+});
+
 }
 
 

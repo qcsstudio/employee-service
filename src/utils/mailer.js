@@ -45,16 +45,36 @@ exports.sendEmployeeInviteMail = async ({
 
 
 
-/* Login Email */
-exports.sendEmployeeLoginMail = async ({ to, companyName, password }) => {
+exports.sendEmployeeLoginMail = async ({
+  to,
+  companySlug,
+  password
+}) => {
+
+  if (!companySlug) {
+    throw new Error("companySlug required for login URL");
+  }
+
+  const loginUrl =
+    `https://${companySlug}.${process.env.BASE_DOMAIN}/login`;
+
   await getTransporter().sendMail({
-    from: `"${companyName}" <no-reply@xyz.io>`,
+    from: `"${companySlug}" <no-reply@xyz.io>`,
     to,
     subject: `Your Login Credentials`,
     html: `
-      <p>Welcome to ${companyName}</p>
-      <p>Email: ${to}</p>
-      <p>Password: <b>${password}</b></p>
+      <h3>Welcome</h3>
+
+      <p>
+        <b>Login URL:</b><br/>
+        <a href="${loginUrl}">${loginUrl}</a>
+      </p>
+
+      <p><b>Email:</b> ${to}</p>
+      <p><b>Password:</b> ${password}</p>
+
+      <p>Please login and change password immediately.</p>
     `
   });
 };
+
