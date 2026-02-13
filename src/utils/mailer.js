@@ -50,6 +50,7 @@ exports.sendEmployeeLoginMail = async ({
   companySlug,
   password
 }) => {
+console.log("BASE_DOMAIN =", process.env.BASE_DOMAIN);
 
   if (!companySlug) {
     throw new Error("companySlug required for login URL");
@@ -73,7 +74,6 @@ exports.sendEmployeeLoginMail = async ({
       <p><b>Email:</b> ${to}</p>
       <p><b>Password:</b> ${password}</p>
 
-      <p>Please login and change password immediately.</p>
     `
   });
 };

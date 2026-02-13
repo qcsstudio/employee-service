@@ -40,7 +40,7 @@ exports.createEmployee = async (req, res) => {
       companyId: req.companyId,
       workEmail
     });
-
+console.log(existingEmployee,"------")
     if (existingEmployee) {
       return res.status(400).json({ message: "Employee already exists" });
     }
