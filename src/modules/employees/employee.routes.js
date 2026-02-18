@@ -31,5 +31,9 @@ router.post("/", auth, tenant, employeeController.createEmployee);
  * ===============================
  */
 router.post("/approve/:id", auth, tenant, approvalController.approveEmployee);
+router.get(
+  "/internal/employee/biometric",
+  employeeController.findByBiometric
+);
 
 module.exports = router;

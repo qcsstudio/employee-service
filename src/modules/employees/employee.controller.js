@@ -7,6 +7,7 @@ const {
 } = require("../../utils/mailer");
 const employeeService = require("./employee.service");
    const axios = require("axios");
+const mongoose = require("mongoose");
 
 /**
  * CREATE EMPLOYEE
@@ -196,4 +197,30 @@ exports.addPastExperience = async (req, res) => {
     req.body
   );
   res.json(employee);
+};
+
+
+exports.findByBiometric = async (req,res)=>{
+  try {
+
+    const { code, companyId } = req.query;
+
+    if(!code || !companyId){
+      return res.status(400).json(null);
+    }
+
+    const employee = await Employee.findOne({
+      employeeId: code,
+      companyId: new mongoose.Types.ObjectId(companyId)
+    });
+
+    if(!employee)
+      return res.status(404).json(null);
+
+    res.json(employee);
+
+  } catch(err){
+    console.log("Biometric lookup error:", err);
+    res.status(500).json(null);
+  }
 };
