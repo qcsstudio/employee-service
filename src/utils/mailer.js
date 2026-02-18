@@ -55,6 +55,7 @@ console.log("BASE_DOMAIN =", process.env.BASE_DOMAIN);
   if (!companySlug) {
     throw new Error("companySlug required for login URL");
   }
+console.log(password,"===========")
 
   const loginUrl =
     `https://${companySlug}.${process.env.BASE_DOMAIN}/login`;
