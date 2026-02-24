@@ -105,34 +105,6 @@ if (createLogin) {
 }
 
 
-
-    // === SEND INVITE ===
-    if (sendInvite) {
-      const token = crypto.randomBytes(32).toString("hex");
-      const otp = Math.floor(1000 + Math.random() * 9000).toString();
-
-      await Invite.create({
-        companyId: req.companyId,
-        email: workEmail,
-        token,
-        otp,
-        systemRole,
-        method,
-        inviteMessage,
-        expiresAt: new Date(Date.now() + 48 * 60 * 60 * 1000) // 48h
-      });
-
-      const inviteUrl = `https://${req.companySlug}.xyz.io/newemployee?token=${token}`;
-
-      await sendEmployeeInviteMail({
-        to: workEmail,
-        companyName: req.companySlug,
-        inviteUrl,
-        otp,
-        inviteMessage
-      });
-    }
-
     // ✅ Success
     return res.status(200).json({
       message: "Employee created successfully",
