@@ -35,5 +35,6 @@ router.get(
   "/internal/employee/biometric",
   employeeController.findByBiometric
 );
+router.get("/company/employee/dashbaord",auth, approvalController.companyEmployeeDashboard)
 
 module.exports = router;
