@@ -7,7 +7,7 @@ function getTransporter() {
     transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
       port: Number(process.env.SMTP_PORT),
-      secure: Number(process.env.SMTP_PORT) === 465, // ✅ AUTO FIX
+      secure: Number(process.env.SMTP_PORT) === 465,
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS
@@ -17,10 +17,7 @@ function getTransporter() {
   return transporter;
 }
 
-module.exports = getTransporter;
-
-
-exports.sendEmployeeInviteMail = async ({
+const sendEmployeeInviteMail = async ({
   to,
   companyName,
   inviteUrl,
@@ -28,7 +25,7 @@ exports.sendEmployeeInviteMail = async ({
   inviteMessage
 }) => {
   await getTransporter().sendMail({
-    from: `"${companyName}" <no-reply@xyz.io>`,
+    from: `"${companyName}" <${process.env.SMTP_USER}>`,
     to,
     subject: `Employee Invitation`,
     html: `
@@ -45,39 +42,34 @@ exports.sendEmployeeInviteMail = async ({
   });
 };
 
-
-
-exports.sendEmployeeLoginMail = async ({
+const sendEmployeeLoginMail = async ({
   to,
   companySlug,
   password
 }) => {
-console.log("BASE_DOMAIN =", process.env.BASE_DOMAIN);
-
   if (!companySlug) {
     throw new Error("companySlug required for login URL");
   }
-console.log(password,"===========")
 
   const loginUrl =
     `https://${companySlug}.${process.env.BASE_DOMAIN}/login`;
 
   await getTransporter().sendMail({
-    from: `"${companySlug}" <no-reply@xyz.io>`,
+    from: `"${companySlug}" <${process.env.SMTP_USER}>`,
     to,
     subject: `Your Login Credentials`,
     html: `
       <h3>Welcome</h3>
-
-      <p>
-        <b>Login URL:</b><br/>
+      <p><b>Login URL:</b><br/>
         <a href="${loginUrl}">${loginUrl}</a>
       </p>
-
       <p><b>Email:</b> ${to}</p>
       <p><b>Password:</b> ${password}</p>
-
     `
   });
 };
 
+module.exports = {
+  sendEmployeeInviteMail,
+  sendEmployeeLoginMail
+};
