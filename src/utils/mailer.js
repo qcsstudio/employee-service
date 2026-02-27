@@ -150,8 +150,3 @@ exports.sendEmployeeLoginMail = async ({
     `
   });
 };
-
-module.exports = {
-  sendEmployeeInviteMail,
-  sendEmployeeLoginMail
-};
