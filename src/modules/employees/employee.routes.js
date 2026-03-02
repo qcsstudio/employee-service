@@ -37,4 +37,10 @@ router.get(
 );
 router.get("/company/employee/dashbaord",auth, approvalController.companyEmployeeDashboard)
 
+router.get(
+  "/dashboard",
+  auth,
+  employeeController.getDashboard
+);
+
 module.exports = router;
