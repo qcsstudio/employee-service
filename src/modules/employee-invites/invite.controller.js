@@ -66,20 +66,22 @@ const inviteUrl = `${baseDomain}/Addingyourself?${queryParams.toString()}`;
 };
 
 exports.verifyInvite = async (req, res) => {
-  const { otp } = req.body;
+  const { otp, token, email } = req.body;
 
-  if (!otp) {
-    return res.status(400).json({ message: "OTP required" });
+  if (!otp || !token || !email) {
+    return res.status(400).json({ message: "OTP, token & email required" });
   }
 
   const invite = await Invite.findOne({
     otp,
+    token,
+    email,
     used: false,
     expiresAt: { $gt: new Date() }
   });
 
   if (!invite) {
-    return res.status(400).json({ message: "Invalid or expired OTP" });
+    return res.status(400).json({ message: "Invalid or expired invite" });
   }
 
   res.json({
