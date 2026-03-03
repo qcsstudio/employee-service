@@ -406,3 +406,18 @@ exports.getDashboardStats = async ({
   };
 
 };
+
+exports.getAllEmployees = async ({ companyId, userId, role }) => {
+
+  const companyObjectId = new mongoose.Types.ObjectId(companyId);
+  
+  if(role !== "HR"){
+    throw new Error("Unauthorized");
+  }
+
+  const employees = await Employee.find({
+    companyId: companyObjectId
+  }).select("fullName _id").lean();
+
+  return employees;
+}

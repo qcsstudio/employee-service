@@ -43,4 +43,6 @@ router.get(
   employeeController.getDashboard
 );
 
+router.get("/all", auth, employeeController.getAllEmployees);
+
 module.exports = router;
