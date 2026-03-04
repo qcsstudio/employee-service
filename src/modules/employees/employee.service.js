@@ -1,4 +1,5 @@
 const Employee = require("./employee.model");
+const mongoose = require("mongoose");
 
 exports.createEmployee = async (companyId, data) => {
   return await Employee.create({
@@ -133,3 +134,290 @@ exports.addPastExperience = async (employeeId, data) => {
     { new: true }
   );
 };
+
+exports.getDashboardStats = async ({
+  companyId,
+  userId,
+  role
+}) => {
+
+  if (!["HR", "TL"].includes(role)) {
+    throw new Error("Unauthorized access");
+  }
+
+  const companyObjectId = new mongoose.Types.ObjectId(companyId);
+  const userObjectId = new mongoose.Types.ObjectId(userId);
+
+  const todayStart = new Date();
+  todayStart.setHours(0,0,0,0);
+
+  const todayEnd = new Date();
+  todayEnd.setHours(23,59,59,999);
+
+  /* ---------------- GET TL TEAM EMPLOYEES ---------------- */
+
+  let employeeMatch = {
+    companyId: companyObjectId
+  };
+
+  if (role === "TL") {
+
+    const team = await mongoose
+      .connection
+      .collection("teams")
+      .findOne({
+        "teamLead.employeeid": userObjectId
+      });
+
+    const teamEmployeeIds =
+      team?.assignedEmployeeList?.map(
+        emp => new mongoose.Types.ObjectId(emp.employeeId)
+      ) || [];
+
+    employeeMatch._id = {
+      $in: teamEmployeeIds
+    };
+
+  }
+
+  /* ---------------- DASHBOARD AGGREGATION ---------------- */
+
+  const result = await mongoose
+    .connection
+    .collection("employees")
+    .aggregate([
+
+      {
+        $match: employeeMatch
+      },
+
+      {
+        $facet: {
+
+          /* TEAM SIZE */
+
+          teamSize: [
+            {
+              $count: "count"
+            }
+          ],
+
+          /* PENDING APPROVAL */
+
+          pendingApprovals: [
+            {
+              $match: {
+                status: "PENDING_APPROVAL"
+              }
+            },
+            {
+              $count: "count"
+            }
+          ],
+
+          /* PRESENT TODAY */
+
+          presentToday: [
+
+            {
+              $lookup: {
+
+                from: "attendances",
+
+                let: {
+                  empId: "$_id"
+                },
+
+                pipeline: [
+
+                  {
+                    $match: {
+
+                      companyId: companyObjectId,
+
+                      date: {
+                        $gte: todayStart,
+                        $lte: todayEnd
+                      },
+
+                      status: {
+                        $in: ["PRESENT", "LATE"]
+                      },
+
+                      $expr: {
+                        $eq: ["$employeeId", "$$empId"]
+                      }
+
+                    }
+                  }
+
+                ],
+
+                as: "attendance"
+
+              }
+            },
+
+            {
+              $match: {
+                attendance: { $ne: [] }
+              }
+            },
+
+            {
+              $count: "count"
+            }
+
+          ],
+
+          /* EMPLOYEE LIST */
+
+          employees: [
+
+            {
+              $lookup: {
+
+                from: "attendances",
+
+                let: {
+                  empId: "$_id"
+                },
+
+                pipeline: [
+
+                  {
+                    $match: {
+
+                      date: {
+                        $gte: todayStart,
+                        $lte: todayEnd
+                      },
+
+                      $expr: {
+                        $eq: ["$employeeId", "$$empId"]
+                      }
+
+                    }
+                  }
+
+                ],
+
+                as: "todayAttendance"
+
+              }
+
+            },
+
+            {
+              $addFields: {
+
+                attendanceStatus: {
+
+                  $cond: [
+
+                    {
+                      $eq: [
+                        { $size: "$todayAttendance" },
+                        0
+                      ]
+                    },
+
+                    "NOT_MARKED",
+
+                    {
+                      $arrayElemAt: [
+                        "$todayAttendance.status",
+                        0
+                      ]
+                    }
+
+                  ]
+
+                }
+
+              }
+
+            },
+
+            {
+              $project: {
+
+                fullName: 1,
+                workEmail: 1,
+                systemRole: 1,
+                status: 1,
+
+                dateOfJoining:
+                  "$workProfile.dateOfJoining",
+
+                attendanceStatus: 1
+
+              }
+            }
+
+          ]
+
+        }
+
+      },
+
+      {
+
+        $project: {
+
+          teamSize:
+            {
+              $ifNull: [
+                { $arrayElemAt: ["$teamSize.count", 0] },
+                0
+              ]
+            },
+
+          pendingApprovals:
+            {
+              $ifNull: [
+                { $arrayElemAt: ["$pendingApprovals.count", 0] },
+                0
+              ]
+            },
+
+          presentToday:
+            {
+              $ifNull: [
+                { $arrayElemAt: ["$presentToday.count", 0] },
+                0
+              ]
+            },
+
+          employees: 1
+
+        }
+
+      }
+
+    ])
+    .toArray();
+
+  return result[0] || {
+    teamSize: 0,
+    presentToday: 0,
+    pendingApprovals: 0,
+    employees: []
+  };
+
+};
+
+exports.getAllEmployees = async ({ companyId, userId, role }) => {
+
+  const companyObjectId = new mongoose.Types.ObjectId(companyId);
+  
+  if(role !== "HR"){
+    throw new Error("Unauthorized");
+  }
+
+  const employees = await Employee.find({
+    companyId: companyObjectId
+  }).select("fullName _id").lean();
+
+  return employees;
+}

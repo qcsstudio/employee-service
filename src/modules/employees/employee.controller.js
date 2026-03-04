@@ -196,3 +196,62 @@ exports.findByBiometric = async (req,res)=>{
     res.status(500).json(null);
   }
 };
+
+exports.getDashboard = async (req, res) => {
+
+  try {
+
+    const result = await employeeService.getDashboardStats({
+      companyId: req.user.companyId,
+      userId: req.user.userId,
+      role: req.user.role
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Dashboard fetched successfully",
+      data: result
+    });
+
+  }
+  catch (error) {
+
+    console.error("Dashboard Controller Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+
+};
+
+exports.getAllEmployees = async (req, res) => {
+
+  try {
+
+    const result = await employeeService.getAllEmployees({
+      companyId: req.user.companyId,
+      userId: req.user.userId,
+      role: req.user.role
+    });  
+
+    return res.status(200).json({
+      success: true,
+      message: "Employees fetched successfully",
+      data: result
+    });
+
+  }
+  catch (error) {
+
+    console.error("Dashboard Controller Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: error.message
+    });
+
+  }
+}
