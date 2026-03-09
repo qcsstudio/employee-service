@@ -146,9 +146,17 @@ if (createLogin) {
 exports.updatePersonal = async (req, res) => {
   const { id } = req.params;
   if(!id) return res.status(400).json({ message: "Employee ID is required" });
+
+  const updateData = req.body;
+
+  // If profile pic was uploaded, add imagePath
+  if (req.file && req.file.location) {
+    updateData.imagePath = req.file.location;
+  }
+
   const employee = await employeeService.updatePersonal(
     id,
-    req.body
+    updateData
   );
   res.json(employee);
 };
@@ -176,9 +184,17 @@ exports.addEducation = async (req, res) => {
 exports.addOrUpdateDocument = async (req, res) => {
   const { id } = req.params;
   if(!id) return res.status(400).json({ message: "Employee ID is required" });
+
+  const docData = req.body;
+
+  // If document file was uploaded, add fileUrl
+  if (req.file && req.file.location) {
+    docData.fileUrl = req.file.location;
+  }
+
   const employee = await employeeService.addOrUpdateDocument(
     id,
-    req.body
+    docData
   );
   res.json(employee);
 };

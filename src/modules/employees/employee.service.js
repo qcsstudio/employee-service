@@ -83,9 +83,18 @@ exports.employeeDashboard = async (companyId, filters) => {
 
 // PERSONAL UPDATE
 exports.updatePersonal = async (employeeId, data) => {
+  const update = { $set: { personal: data } };
+
+  // If imagePath came along, set it at root level
+  if (data.imagePath) {
+    update.$set.imagePath = data.imagePath;
+    delete data.imagePath;
+    update.$set.personal = data;
+  }
+
   return await Employee.findByIdAndUpdate(
     employeeId,
-    { $set: { personal: data } },
+    update,
     { new: true }
   );
 };

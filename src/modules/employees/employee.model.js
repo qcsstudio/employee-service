@@ -52,11 +52,14 @@ const educationSchema = new mongoose.Schema(
 
 const documentSchema = new mongoose.Schema(
   {
-    type: String, // PAN, VOTER_ID, DRIVING_LICENSE, ESIC, PF
+    type: String, // PAN, VOTER_ID, DRIVING_LICENSE, ESIC, PF, PASSPORT
     documentNumber: String,
     nameOnDocument: String,
+    middleName: String,
     fatherName: String,
     dateOfBirth: Date,
+    placeOfBirth: String,
+    placeOfIssue: String,
     issueDate: Date,
     expiryDate: Date,
     uanNumber: String,
@@ -117,6 +120,7 @@ const employeeSchema = new mongoose.Schema(
     },
     phone: String,
     employeeId: String,
+    imagePath: String,
 
     /* BASIC INFO (invite step) */
     firstName: String,

@@ -1,6 +1,7 @@
        const router = require("express").Router();
 const auth = require("../../middlewares/auth.middleware");
 const tenant = require("../../middlewares/tenant.middleware");
+const uploadToS3 = require("../../middlewares/upload.middleware");
 
 const employeeController = require("./employee.controller");
 const profileController = require("./employee.profile.controller");
@@ -12,10 +13,10 @@ const inviteTenant = require("../../middlewares/inviteTenant.middleware");
  * EMPLOYEE – SELF PROFILE (INVITE FLOW)
  * ===============================
  */
-router.put("/:id/personal", employeeController.updatePersonal);
+router.put("/:id/personal", uploadToS3("profile-pics").single("profilePic"), employeeController.updatePersonal);
 router.put("/:id/work-profile", employeeController.updateWorkProfile);
 router.put("/:id/education", employeeController.addEducation);
-router.put("/:id/document", employeeController.addOrUpdateDocument);
+router.put("/:id/document", uploadToS3("documents").single("documentFile"), employeeController.addOrUpdateDocument);
 router.put("/:id/past-experience", employeeController.addPastExperience);
 
 /**
