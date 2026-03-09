@@ -123,6 +123,52 @@ const employeeSchema = new mongoose.Schema(
     lastName: String,
     dob: Date,
 
+    /* WORK LOCATION */
+    officeAddress: String,
+    locationBranch: String,
+
+    /* EMPLOYMENT DETAILS */
+    joiningDate: Date,
+    employmentType: String,
+    probation: String,
+
+    /* ORGANIZATION ASSIGNMENT */
+    department: String,
+    designation: String,
+    reportingManager: String,
+    team: String,
+    grade: String,
+    businessUnit: String,
+
+    /* ATTENDANCE & SHIFT SETUP */
+    shift: String,
+    clockInMethod: String,
+    weeklyOff: String,
+
+    /* POLICY ASSIGNMENT */
+    attendancePolicy: {
+      policyId: mongoose.Schema.Types.ObjectId,
+      policyName: String,
+    },
+    leavePolicy: {
+      policyId: mongoose.Schema.Types.ObjectId,
+      policyName: String,
+    },
+    holidayPolicy: {
+      policyId: mongoose.Schema.Types.ObjectId,
+      policyName: String,
+    },
+    extraTimePolicy: {
+      policyId: mongoose.Schema.Types.ObjectId,
+      policyName: String,
+    },
+
+    /* APPROVAL WORKFLOW */
+    approvalWorkflow: {
+      workflowId: mongoose.Schema.Types.ObjectId,
+      workflowName: String,
+    },
+
     /* STATUS */
     status: {
       type: String,
