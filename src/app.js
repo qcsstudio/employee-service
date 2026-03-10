@@ -11,9 +11,6 @@ app.use(cors({
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 }));
 
-/* VERY IMPORTANT — HANDLE PREFLIGHT */
-app.options("*", cors());
-
 app.use(express.json());
 
 /* ROUTES */
