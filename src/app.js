@@ -5,16 +5,19 @@ const app = express();
 
 /* CORS */
 app.use(cors({
-  origin: true,            // reflect request origin
+  origin: true,
   credentials: true,
   allowedHeaders: ["Content-Type", "Authorization", "x-tenant"],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"]
 }));
 
+/* VERY IMPORTANT — HANDLE PREFLIGHT */
+app.options("*", cors());
+
 app.use(express.json());
 
 /* ROUTES */
-app.use("/admin", require("./modules/admin/admin.routes"))
+app.use("/admin", require("./modules/admin/admin.routes"));
 app.use("/employees", require("./modules/employees/employee.routes"));
 app.use("/employee-invites", require("./modules/employee-invites/invite.routes"));
 
