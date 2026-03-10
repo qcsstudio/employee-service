@@ -68,8 +68,9 @@ const inviteUrl = `${baseDomain}/Addingyourself?${queryParams.toString()}`;
 exports.verifyInvite = async (req, res) => {
   const { otp, token } = req.body;
 
-  if (!otp || !token || !email) {
-    return res.status(400).json({ message: "OTP, token & email required" });
+  // Only check for otp and token now
+  if (!otp || !token) {
+    return res.status(400).json({ message: "OTP & token required" });
   }
 
   const invite = await Invite.findOne({
