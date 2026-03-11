@@ -293,3 +293,17 @@ exports.getAllEmployees = async (req, res) => {
 
   }
 }
+
+exports.getEmployeesByCompany = async (req, res) => {
+  try {
+
+    const employees = await Employee.find({
+      companyId: req.params.companyId
+    }).select("_id email");
+
+    res.json(employees);
+
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};

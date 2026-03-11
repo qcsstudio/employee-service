@@ -151,25 +151,25 @@ const employeeSchema = new mongoose.Schema(
 
     /* POLICY ASSIGNMENT */
     attendancePolicy: {
-      policyId: mongoose.Schema.Types.ObjectId,
+      policyId: String,
       policyName: String,
     },
     leavePolicy: {
-      policyId: mongoose.Schema.Types.ObjectId,
+      policyId: String,
       policyName: String,
     },
     holidayPolicy: {
-      policyId: mongoose.Schema.Types.ObjectId,
+      policyId: String,
       policyName: String,
     },
     extraTimePolicy: {
-      policyId: mongoose.Schema.Types.ObjectId,
+      policyId: String,
       policyName: String,
     },
 
     /* APPROVAL WORKFLOW */
     approvalWorkflow: {
-      workflowId: mongoose.Schema.Types.ObjectId,
+      workflowId: String,
       workflowName: String,
     },
 

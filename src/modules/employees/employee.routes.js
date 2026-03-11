@@ -46,4 +46,9 @@ router.get(
 
 router.get("/all", auth, employeeController.getAllEmployees);
 
+router.get(
+  "/internal/company/:companyId",
+  employeeController.getEmployeesByCompany
+);
+
 module.exports = router;
