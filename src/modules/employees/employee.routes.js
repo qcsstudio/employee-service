@@ -51,4 +51,9 @@ router.get(
   employeeController.getEmployeesByCompany
 );
 
+router.get(
+  "/by-company/:companyId",
+  employeeController.getEmployeeById
+);
+
 module.exports = router;

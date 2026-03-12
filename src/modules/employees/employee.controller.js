@@ -307,3 +307,30 @@ exports.getEmployeesByCompany = async (req, res) => {
     res.status(500).json({ message: err.message });
   }
 };
+
+exports.getEmployeeById = async (req, res) => {
+  try {
+    const { companyId } = req.params;
+
+    const employee = await Employee.find({
+      companyId,
+      employeeId: { $exists: true, $ne: "" }
+    })
+    .sort({ createdAt: -1 })// latest employee
+      // .select("employeeId companyId createdAt")
+      // .lean();
+      console.log(employee,"employeemployeemploye")
+    return res.status(200).json({
+      success: true,
+      data: employee,
+    });
+
+  } catch (error) {
+    console.log(error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Server error",
+    });
+  }
+};
